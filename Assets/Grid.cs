@@ -11,6 +11,10 @@ public class Grid : MonoBehaviour
     public LayerMask rayMask;
     public LayerMask buildingMask;
     public Collider[] colliders;
+    public GameObject[] buildings;
+    public Vector3 cursorPos;
+
+
 
     void Start()
     {
@@ -22,13 +26,15 @@ public class Grid : MonoBehaviour
     {
         RaycastPlane();
         CheckForCollisions();
+        PlaceBuilding();
     }
 
     void RaycastPlane()
     {
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100.0f, rayMask))
         {
-            Cube.transform.position = new Vector3(Mathf.FloorToInt(hit.point.x) + 0.5f, 0, Mathf.FloorToInt(hit.point.z) + 0.5f);
+            cursorPos = new Vector3(Mathf.FloorToInt(hit.point.x) + 0.5f, 0, Mathf.FloorToInt(hit.point.z) + 0.5f);
+            Cube.transform.position = cursorPos;
         }
     }
 
@@ -36,7 +42,7 @@ public class Grid : MonoBehaviour
     {
         Vector3 spherePosition = new Vector3(Cube.transform.position.x - 0.15f, Cube.transform.position.y, Cube.transform.position.z - 0.4f);
 
-        Collider[] colliders = Physics.OverlapSphere(spherePosition, 0.2f, LayerMask.GetMask("Buildings"), QueryTriggerInteraction.UseGlobal);
+        colliders = Physics.OverlapSphere(spherePosition, 0.2f, LayerMask.GetMask("Buildings"), QueryTriggerInteraction.UseGlobal);
 
         if (colliders.Length > 0)
         {
@@ -45,6 +51,14 @@ public class Grid : MonoBehaviour
         else
         {
             Cube.GetComponent<SpriteRenderer>().color = Color.green;
+        }
+    }
+
+    void PlaceBuilding()
+    {
+        if(Input.GetButtonDown("Fire2") && colliders.Length == 0)
+        {
+            Instantiate(buildings[transform.GetComponent<BuildingSelector>().selectedIndex], cursorPos, Quaternion.identity);
         }
     }
 }
