@@ -1,64 +1,67 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Grid : MonoBehaviour
 {
     GameObject myCamera;
 
-    public GameObject Cube;
+    public GameObject Projection;
     public LayerMask rayMask;
     public LayerMask buildingMask;
-    public Collider[] colliders;
+    public bool canPlace;
     public GameObject[] buildings;
     public Vector3 cursorPos;
-
-
+    public SpriteRenderer projectionImage;
 
     void Start()
     {
         myCamera = Camera.main.gameObject;
-
     }
 
     void Update()
     {
-        RaycastPlane();
-        CheckForCollisions();
-        PlaceBuilding();
+        if (!EventSystem.current.IsPointerOverGameObject()) // Check if mouse is over UI
+        {
+            RaycastPlane();
+            CheckForCollisions();
+            PlaceBuilding();
+            UpdateProjection();
+        }
     }
 
     void RaycastPlane()
     {
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100.0f, rayMask))
         {
-            cursorPos = new Vector3(Mathf.FloorToInt(hit.point.x) + 0.5f, 0, Mathf.FloorToInt(hit.point.z) + 0.5f);
-            Cube.transform.position = cursorPos;
+            cursorPos = new Vector3(Mathf.FloorToInt(hit.point.x) + 0.5f, Mathf.FloorToInt(hit.point.y) + 0.5f, 0);
+            Projection.transform.position = cursorPos;
         }
     }
 
     void CheckForCollisions()
     {
-        Vector3 spherePosition = new Vector3(Cube.transform.position.x - 0.15f, Cube.transform.position.y, Cube.transform.position.z - 0.4f);
-
-        colliders = Physics.OverlapSphere(spherePosition, 0.2f, LayerMask.GetMask("Buildings"), QueryTriggerInteraction.UseGlobal);
-
-        if (colliders.Length > 0)
+        if (Physics2D.OverlapBox(Projection.transform.position, new Vector2(2.9f, 2.9f), 0f, buildingMask))
         {
-            Cube.GetComponent<SpriteRenderer>().color = Color.red;
+            projectionImage.color = Color.red;
+            canPlace = false;
         }
         else
         {
-            Cube.GetComponent<SpriteRenderer>().color = Color.green;
+            projectionImage.color = Color.green;
+            canPlace = true;
         }
     }
 
     void PlaceBuilding()
     {
-        if(Input.GetButtonDown("Fire2") && colliders.Length == 0)
+        if (Input.GetButtonUp("Fire1") && canPlace)
         {
             Instantiate(buildings[transform.GetComponent<BuildingSelector>().selectedIndex], cursorPos, Quaternion.identity);
         }
+    }
+
+    void UpdateProjection()
+    {
+        projectionImage.sprite = buildings[transform.GetComponent<BuildingSelector>().selectedIndex].GetComponentInChildren<SpriteRenderer>().sprite;
     }
 }

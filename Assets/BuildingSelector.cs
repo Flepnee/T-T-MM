@@ -1,11 +1,10 @@
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BuildingSelector : MonoBehaviour
 {
     public Button[] buttons;
-    public int selectedIndex = -1; 
+    public int selectedIndex = 1; 
 
     void Start()
     {

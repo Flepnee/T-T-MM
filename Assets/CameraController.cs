@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour
 
     void MoveCamera()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(2))
         {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");

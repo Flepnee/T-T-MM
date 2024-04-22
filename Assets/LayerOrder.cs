@@ -19,7 +19,7 @@ public class LayerOrder : MonoBehaviour
     void AdjustLayerOrder()
     {
         Vector3 position = transform.position;
-        float priority = -(position.x + position.z);
+        float priority = -(position.x + position.y);
         m_SpriteRenderer.sortingOrder = Mathf.RoundToInt(priority);
     }
 }
